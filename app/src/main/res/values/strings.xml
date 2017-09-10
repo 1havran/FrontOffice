@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">FrontOffice</string>
+    <string name="btnSend">Send</string>
+    <string name="customerFrom">Seller</string>
+    <string name="customerTo">Buyer</string>
+    <string name="Goods">Goods</string>
+    <string name="btnConfigure">Settings</string>
+    <string name="lblTransactions">TNX</string>
+    <string name="lblCustomers">Customers</string>
+    <string name="lblAddCust">Add Customer</string>
+    <string name="lblAddGoods">Add Goods</string>
+    <string name="lblGoods">Warehouse</string>
+    <string name="lblInit">Init DB</string>
+    <string name="lblQuantity">Select Goods first</string>
+    <string name="lblUnit">Unit</string>
+</resources>
