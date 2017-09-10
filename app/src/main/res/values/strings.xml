@@ -13,4 +13,6 @@
     <string name="lblInit">Init DB</string>
     <string name="lblQuantity">Select Goods first</string>
     <string name="lblUnit">Unit</string>
+    <string name="clearDB">Clear DB</string>
+    <string name="lblOcr">Get OCR</string>
 </resources>

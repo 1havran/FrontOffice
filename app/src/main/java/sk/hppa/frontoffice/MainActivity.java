@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -45,18 +44,7 @@ public class MainActivity extends AppCompatActivity {
         btnSettings.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View w) {
-                try {
-                    ArrayList al = mDbHelper.getCustomers();
-                    Toast.makeText(MainActivity.this, al.toString(), Toast.LENGTH_LONG).show();
-                    al = mDbHelper.getGoods();
-                    Toast.makeText(MainActivity.this, al.toString(), Toast.LENGTH_LONG).show();
-                    al = mDbHelper.getTransactions();
-
-                    Toast.makeText(MainActivity.this, al.toString(), Toast.LENGTH_LONG).show();
-
-                } catch (android.content.ActivityNotFoundException ex) {
-                    Toast.makeText(MainActivity.this, (CharSequence) ex, Toast.LENGTH_SHORT).show();
-                }
+                mDbHelper.cleanDatabase();
             }
         });
 
