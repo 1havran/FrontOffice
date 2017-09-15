@@ -63,7 +63,9 @@ public class AddCustomer extends AppCompatActivity {
             public void onClick(View w) {
                 try {
                     String mCustomer = eCustomer.getText().toString()
-                            .replaceAll(" ", "_");
+                            .replaceAll("^\\s+", "")
+                            .replaceAll("\\s+", "_");
+
                     ArrayList al = mDbHelper.getCustomerIDsByName(mCustomer);
 
                     if (al.size() > 0) {
