@@ -62,13 +62,16 @@ public class AddCustomer extends AppCompatActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             public void onClick(View w) {
                 try {
-                    ArrayList al = mDbHelper.getCustomerIDsByName(eCustomer.getText().toString());
+                    String mCustomer = eCustomer.getText().toString()
+                            .replaceAll(" ", "_");
+                    ArrayList al = mDbHelper.getCustomerIDsByName(mCustomer);
+
                     if (al.size() > 0) {
                         String custID = spinnerCustomer.getSelectedItem().toString().split(" ")[0];
-                        mDbHelper.updateCustomerByID(custID, eCustomer.getText().toString(), null);
+                        mDbHelper.updateCustomerByID(custID, mCustomer, null);
                     } else {
                         String custFOID = "DD" + System.currentTimeMillis();
-                        mDbHelper.insertCustomer(eCustomer.getText().toString(), custFOID, null);
+                        mDbHelper.insertCustomer(mCustomer, custFOID, null);
                     }
                     Toast.makeText(AddCustomer.this, "Done", Toast.LENGTH_SHORT).show();
                 } catch (Exception ex) {

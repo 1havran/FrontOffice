@@ -54,12 +54,11 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
     public ArrayList getCustomers() {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList custList = new ArrayList();
-        Cursor cursor = db.rawQuery("select * from " + FrontOfficeDb.tbCustomer.TABLE_NAME +
-                " order by " + FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST + " ASC", null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + FrontOfficeDb.tbCustomer.TABLE_NAME +
+                " ORDER BY " + FrontOfficeDb.tbCustomer._ID + " ASC", null);
         while (cursor.moveToNext()) {
             String s = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer._ID));
             s = s + " " + cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST));
-            //s = s + " " + cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST_FOID));
             custList.add(s);
         }
         cursor.close();
@@ -71,7 +70,6 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         String[] selectionArgs = { custID };
         ContentValues values = new ContentValues();
         values.put(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST, custName);
-        //values.put(FrontOfficeDb.tbCustomer.COLUMN_NAME_BLOB, custBlob);
         int count;
         count = db.update(FrontOfficeDb.tbCustomer.TABLE_NAME, values, selection, selectionArgs);
         return count;
@@ -129,8 +127,6 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             String s = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods._ID));
             s = s + " " + cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS));
-            //s = s + " " + cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_QUANTITY));
-            //s = s + " " + cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS_FOID));
             result.add(s);
         }
         cursor.close();
