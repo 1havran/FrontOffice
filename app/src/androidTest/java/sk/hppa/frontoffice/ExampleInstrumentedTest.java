@@ -1,4 +1,4 @@
-package sk.ropaslovakia.frontoffice;
+package sk.hppa.frontoffice;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

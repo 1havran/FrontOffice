@@ -14,5 +14,6 @@
     <string name="lblQuantity">Select Goods first</string>
     <string name="lblUnit">Unit</string>
     <string name="clearDB">Clear DB</string>
-    <string name="lblOcr">Get OCR</string>
+    <string name="lblTessOcr">Get TessOCR</string>
+    <string name="lblGoOcr">Get GooOCR</string>
 </resources>

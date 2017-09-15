@@ -8,6 +8,7 @@ import android.provider.MediaStore;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,6 +17,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.util.ArrayList;
 
@@ -35,6 +41,7 @@ public class AddCustomer extends AppCompatActivity {
         final Spinner spinnerCustomer = (Spinner) findViewById(R.id.spinnerCustomers);
         final Button btnSend = (Button) findViewById(R.id.btnAddCustomer);
         final Button btnOcr = (Button) findViewById(R.id.btnOcr);
+        final Button btnGoOcr = (Button) findViewById(R.id.btnGooOcr);
         final EditText eCustomer = (EditText) findViewById(R.id.edtCustomer);
 
         ArrayAdapter<String> adapterCustomer = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line, mDbHelper.getCustomers());
@@ -86,6 +93,25 @@ public class AddCustomer extends AppCompatActivity {
                 try {
                     Bitmap bitmap = ((BitmapDrawable)ivCustomerPhoto.getDrawable()).getBitmap();
                     doOCR(bitmap);
+                } catch (Exception ex) {
+                    Toast.makeText(AddCustomer.this, (CharSequence) ex, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btnGoOcr.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View w) {
+                try {
+                    Bitmap bitmap = ((BitmapDrawable)ivCustomerPhoto.getDrawable()).getBitmap();
+                    TextRecognizer textRecognizer = new TextRecognizer.Builder(AddCustomer.this).build();
+                    Frame imageFrame = new Frame.Builder().setBitmap(bitmap).build();
+                    SparseArray<TextBlock> textBlocks = textRecognizer.detect(imageFrame);
+                    String s = new String();
+                    for (int i = 0; i < textBlocks.size(); i++) {
+                        TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
+                        s = s + " " + textBlock.getValue();
+                    }
+                    eCustomer.setText(s);
                 } catch (Exception ex) {
                     Toast.makeText(AddCustomer.this, (CharSequence) ex, Toast.LENGTH_SHORT).show();
                 }

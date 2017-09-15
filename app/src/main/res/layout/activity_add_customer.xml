@@ -32,8 +32,8 @@
 
     <EditText
         android:id="@+id/edtCustomer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="216dp"
+        android:layout_height="133dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
@@ -67,9 +67,22 @@
         android:layout_marginBottom="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:text="@string/lblOcr"
+        android:text="@string/lblTessOcr"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.709"
+        app:layout_constraintLeft_toRightOf="@+id/btnAddCustomer"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/btnGooOcr"
+        android:layout_width="117dp"
+        android:layout_height="47dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/lblGoOcr"
+        app:layout_constraintBottom_toTopOf="@+id/btnOcr"
+        app:layout_constraintHorizontal_bias="0.729"
         app:layout_constraintLeft_toRightOf="@+id/btnAddCustomer"
         app:layout_constraintRight_toRightOf="parent" />
 
