@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 
 public class FrontOfficeDbHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "FrontOffice.db";
 
     public FrontOfficeDbHelper(Context context) {
@@ -57,8 +57,7 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM " + FrontOfficeDb.tbCustomer.TABLE_NAME +
                 " ORDER BY " + FrontOfficeDb.tbCustomer._ID + " ASC", null);
         while (cursor.moveToNext()) {
-            String s = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer._ID));
-            s = s + " " + cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST));
+            String s = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST));
             custList.add(s);
         }
         cursor.close();
@@ -123,10 +122,11 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
     public ArrayList getGoods() {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList result = new ArrayList();
-        Cursor cursor = db.rawQuery("select * from " + FrontOfficeDb.tbGoods.TABLE_NAME, null);
+        Cursor cursor = db.rawQuery("SELECT " + FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS
+                + " FROM " + FrontOfficeDb.tbGoods.TABLE_NAME
+                + " ORDER BY " + FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS + " ASC", null);
         while (cursor.moveToNext()) {
-            String s = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods._ID));
-            s = s + " " + cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS));
+            String s = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS));
             result.add(s);
         }
         cursor.close();
@@ -199,7 +199,7 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
     }
 
     public boolean insertTnx(String sellerID, String buyerID, String goodsID, Double quantity,
-                             String unit, String desc, String tnxFOID) {
+                             String unit, String desc, String tnxFOID, String sellerPrice, String buyerPrice) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(FrontOfficeDb.tbTransactions.COLUMN_NAME_SELLERID, sellerID);
@@ -208,6 +208,8 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         values.put(FrontOfficeDb.tbTransactions.COLUMN_NAME_GOODSID, goodsID);
         values.put(FrontOfficeDb.tbTransactions.COLUMN_NAME_QUANTITY, quantity);
         values.put(FrontOfficeDb.tbTransactions.COLUMN_NAME_UNIT, unit);
+        values.put(FrontOfficeDb.tbTransactions.COLUMN_NAME_SELLERPRICE, sellerPrice);
+        values.put(FrontOfficeDb.tbTransactions.COLUMN_NAME_BUYERPRICE, buyerPrice);
         values.put(FrontOfficeDb.tbTransactions.COLUMN_NAME_TRANS_FOID, tnxFOID);
         db.insert(FrontOfficeDb.tbTransactions.TABLE_NAME, null, values);
         return true;
@@ -222,6 +224,8 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
                 " g." + FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS + " AS goods," +
                 " t." + FrontOfficeDb.tbTransactions.COLUMN_NAME_QUANTITY + " AS quantity," +
                 " t." + FrontOfficeDb.tbTransactions.COLUMN_NAME_UNIT + " AS unit," +
+                " t." + FrontOfficeDb.tbTransactions.COLUMN_NAME_SELLERPRICE + " AS sellerPrice," +
+                " t." + FrontOfficeDb.tbTransactions.COLUMN_NAME_BUYERPRICE + " AS buyerPrice," +
                 " t." + FrontOfficeDb.tbTransactions.COLUMN_NAME_DESC + " AS description," +
                 " t." + FrontOfficeDb.tbTransactions.COLUMN_NAME_TRANS_FOID + " AS foid" +
 
@@ -243,6 +247,8 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
             data.add(cursor.getString(cursor.getColumnIndexOrThrow("goods")));
             data.add(cursor.getString(cursor.getColumnIndexOrThrow("quantity")));
             data.add(cursor.getString(cursor.getColumnIndexOrThrow("unit")));
+            data.add(cursor.getString(cursor.getColumnIndexOrThrow("sellerPrice")));
+            data.add(cursor.getString(cursor.getColumnIndexOrThrow("buyerPrice")));
             data.add(cursor.getString(cursor.getColumnIndexOrThrow("description")));
             data.add(cursor.getString(cursor.getColumnIndexOrThrow("foid")));
             result.add(data);
@@ -278,7 +284,8 @@ final class FrontOfficeDb {
         static final String COLUMN_NAME_GOODS_FOID = "goodsFOID";
         static final String COLUMN_NAME_QUANTITY = "quantity";
         static final String COLUMN_NAME_UNIT = "unit";
-        static final String COLUMN_NAME_BLOB = "blob";
+        static final String COLUMN_NAME_AGREEMENT = "agreement";
+        static final String COLUMN_NAME_PICTURE = "picture";
     }
     static final String SQL_GOODS_CREATE_ENTRIES =
             "CREATE TABLE " + tbGoods.TABLE_NAME + " (" +
@@ -287,7 +294,8 @@ final class FrontOfficeDb {
                     tbGoods.COLUMN_NAME_GOODS_FOID + " TEXT," +
                     tbGoods.COLUMN_NAME_QUANTITY + " REAL," +
                     tbGoods.COLUMN_NAME_UNIT + " TEXT," +
-                    tbGoods.COLUMN_NAME_BLOB + " BLOB)";
+                    tbGoods.COLUMN_NAME_AGREEMENT + " BLOB," +
+                    tbGoods.COLUMN_NAME_PICTURE + " BLOB)";
 
     static final String SQL_GOODS_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + tbGoods.TABLE_NAME;
@@ -299,6 +307,8 @@ final class FrontOfficeDb {
         static final String COLUMN_NAME_GOODSID = "goodsId";
         static final String COLUMN_NAME_QUANTITY = "quantity";
         static final String COLUMN_NAME_UNIT = "unit";
+        static final String COLUMN_NAME_SELLERPRICE = "sellerPrice";
+        static final String COLUMN_NAME_BUYERPRICE = "buyerPrice";
         static final String COLUMN_NAME_TRANS_FOID = "transactionFOID";
         static final String COLUMN_NAME_DESC = "description";
     }
@@ -310,6 +320,8 @@ final class FrontOfficeDb {
                     tbTransactions.COLUMN_NAME_BUYERID + " INTEGER," +
                     tbTransactions.COLUMN_NAME_GOODSID + " INTEGER," +
                     tbTransactions.COLUMN_NAME_QUANTITY + " REAL," +
+                    tbTransactions.COLUMN_NAME_SELLERPRICE + " REAL," +
+                    tbTransactions.COLUMN_NAME_BUYERPRICE + " REAL," +
                     tbTransactions.COLUMN_NAME_UNIT + " TEXT," +
                     tbTransactions.COLUMN_NAME_TRANS_FOID + " TEXT," +
                     tbTransactions.COLUMN_NAME_DESC + " TEXT)";

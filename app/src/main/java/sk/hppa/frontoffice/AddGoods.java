@@ -22,9 +22,9 @@ public class AddGoods extends AppCompatActivity {
 
 
         final EditText eGoods = (EditText) findViewById(R.id.edtGoods);
-        final EditText eQuantity = (EditText) findViewById(R.id.edtQuantity);
+        final EditText eQuantity = (EditText) findViewById(R.id.edtQuantity1);
         final EditText eUnit = (EditText) findViewById(R.id.edtUnit);
-        final Spinner spinnerGoods = (Spinner) findViewById(R.id.spinnerGoods);
+        final Spinner spinnerGoods = (Spinner) findViewById(R.id.spinnerGoods1);
         final Button btnSend = (Button) findViewById(R.id.btnAddGoods);
 
         ArrayAdapter<String> adapterGoods = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line, mDbHelper.getGoods());

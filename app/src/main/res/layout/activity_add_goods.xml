@@ -23,7 +23,7 @@
         app:layout_constraintHorizontal_bias="0.497" />
 
     <Spinner
-        android:id="@+id/spinnerGoods"
+        android:id="@+id/spinnerGoods1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
@@ -47,10 +47,10 @@
         app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerGoods" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerGoods1" />
 
     <EditText
-        android:id="@+id/edtQuantity"
+        android:id="@+id/edtQuantity1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
@@ -75,6 +75,6 @@
         android:text="@string/lblUnit"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtQuantity" />
+        app:layout_constraintTop_toBottomOf="@+id/edtQuantity1" />
 
 </android.support.constraint.ConstraintLayout>

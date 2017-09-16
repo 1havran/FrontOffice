@@ -106,26 +106,33 @@ public class DisplayView extends AppCompatActivity {
         TextView tvSeller = new TextView(this);
         TextView tvBuyer = new TextView(this);
         TextView tvQuantity = new TextView(this);
+        TextView tvSellerPrice = new TextView(this);
+        TextView tvBuyerPrice = new TextView(this);
         TextView tvDesc = new TextView(this);
         TextView tvUnit = new TextView(this);
         TextView tvFOID = new TextView(this);
 
-        tvID.setText("ID");
+        tvID.setText("ID ");
         row.addView(tvID);
-        tvSeller.setText("Seller");
+        tvSeller.setText(" Seller ");
         row.addView(tvSeller);
-        tvBuyer.setText("Buyer");
+        tvBuyer.setText(" Buyer ");
         row.addView(tvBuyer);
-        tvGoods.setText("Goods");
+        tvGoods.setText(" Goods ");
         row.addView(tvGoods);
-        tvQuantity.setText("Quantity");
+        tvQuantity.setText(" # ");
         row.addView(tvQuantity);
-        tvDesc.setText("Description");
-        row.addView(tvDesc);
-        tvUnit.setText("Unit");
+        tvUnit.setText(" Unit ");
         row.addView(tvUnit);
-        tvFOID.setText("FOID");
+        tvSellerPrice.setText(" €sell ");
+        row.addView(tvSellerPrice);
+        tvBuyerPrice.setText(" €buy ");
+        row.addView(tvBuyerPrice);
+        tvDesc.setText(" Description ");
+        row.addView(tvDesc);
+        tvFOID.setText(" FOID ");
         row.addView(tvFOID);
+
         tl.addView(row);
 
         ArrayList tnxs = mDbHelper.getTransactions();
@@ -140,6 +147,8 @@ public class DisplayView extends AppCompatActivity {
             TextView tv5 = new TextView(this);
             TextView tv6 = new TextView(this);
             TextView tv7 = new TextView(this);
+            TextView tv8 = new TextView(this);
+            TextView tv9 = new TextView(this);
 
             tv0.setText(a.get(0).toString());
             tv1.setText(a.get(1).toString());
@@ -149,6 +158,8 @@ public class DisplayView extends AppCompatActivity {
             tv5.setText(a.get(5).toString());
             tv6.setText(a.get(6).toString());
             tv7.setText(a.get(7).toString());
+            tv8.setText(a.get(8).toString());
+            tv9.setText(a.get(9).toString());
 
             tbrow.addView(tv0);
             tbrow.addView(tv1);
@@ -158,6 +169,8 @@ public class DisplayView extends AppCompatActivity {
             tbrow.addView(tv5);
             tbrow.addView(tv6);
             tbrow.addView(tv7);
+            tbrow.addView(tv8);
+            tbrow.addView(tv9);
             tl.addView(tbrow);
         }
     }
