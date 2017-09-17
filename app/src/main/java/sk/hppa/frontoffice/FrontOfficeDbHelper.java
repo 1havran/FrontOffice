@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 
 public class FrontOfficeDbHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
     private static final String DATABASE_NAME = "FrontOffice.db";
 
     public FrontOfficeDbHelper(Context context) {
@@ -42,11 +42,14 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
-    public boolean insertCustomer(String customer, String customerFOID, Blob custBlob) {
+    public boolean insertCustomer(String customer, String customerFOID, String picPath) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST, customer);
         values.put(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST_FOID, customerFOID);
+        if (picPath != null) {
+            values.put(FrontOfficeDb.tbCustomer.COLUMN_NAME_PICTURE_PATH, picPath);
+        }
         db.insert(FrontOfficeDb.tbCustomer.TABLE_NAME, null, values);
         return true;
     }
@@ -63,12 +66,15 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return custList;
     }
-    public int updateCustomerByID (String custID, String custName, Blob custBlob) {
+    public int updateCustomerByID (String custID, String custName, String picPath) {
         SQLiteDatabase db = this.getWritableDatabase();
         String selection = FrontOfficeDb.tbCustomer._ID + " = ?";
         String[] selectionArgs = { custID };
         ContentValues values = new ContentValues();
         values.put(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST, custName);
+        if (picPath != null) {
+            values.put(FrontOfficeDb.tbCustomer.COLUMN_NAME_PICTURE_PATH, picPath);
+        }
         int count;
         count = db.update(FrontOfficeDb.tbCustomer.TABLE_NAME, values, selection, selectionArgs);
         return count;
@@ -98,13 +104,13 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
             custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer._ID)));
             custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST)));
             custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_CUST_FOID)));
-            custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_BLOB)));
+            custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbCustomer.COLUMN_NAME_PICTURE_PATH)));
         }
         cursor.close();
         return custList;
     }
 
-    public boolean insertGoods(String goods, String goodsFOID, Double quantity, String unit) {
+    public boolean insertGoods(String goods, String goodsFOID, Double quantity, String unit, String picAgreementPath, String picGoodsPath) {
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
@@ -112,6 +118,8 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
             values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS_FOID, goodsFOID);
             values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_QUANTITY, quantity);
             values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_UNIT, unit);
+            values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_AGREEMENT_PATH, picAgreementPath);
+            values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_PICTURE_PATH, picGoodsPath);
             db.insert(FrontOfficeDb.tbGoods.TABLE_NAME, null, values);
             return true;
         } catch (Exception ex) {
@@ -158,6 +166,9 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
             custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS)));
             custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_UNIT)));
             custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_QUANTITY)));
+            custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_AGREEMENT_PATH)));
+            custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_PICTURE_PATH)));
+            custList.add(cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS_FOID)));
         }
         cursor.close();
         return custList;
@@ -175,17 +186,24 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return result;
     }
-    public String getAvailableGoodsUnit(String ID) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("select " + FrontOfficeDb.tbGoods.COLUMN_NAME_UNIT +
-                " from " + FrontOfficeDb.tbGoods.TABLE_NAME +
-                " where " + FrontOfficeDb.tbGoods._ID + "= " + ID, null);
-        String result = null;
-        while (cursor.moveToNext()) {
-            result = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbGoods.COLUMN_NAME_UNIT));
+
+    public int updateGoods(String goodsID, String foid, Double quantity, String unit, String picPath, String goodsPath) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = FrontOfficeDb.tbGoods._ID + " = ?";
+        String[] selectionArgs = { goodsID };
+        ContentValues values = new ContentValues();
+        values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_QUANTITY, quantity.toString());
+        if (picPath != null) {
+            values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_PICTURE_PATH, picPath);
         }
-        cursor.close();
-        return result;
+        if (goodsPath != null) {
+            values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_AGREEMENT_PATH, goodsPath);
+        }
+        values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_UNIT, unit);
+        values.put(FrontOfficeDb.tbGoods.COLUMN_NAME_GOODS_FOID, foid);
+        int count;
+        count = db.update(FrontOfficeDb.tbGoods.TABLE_NAME, values, selection, selectionArgs);
+        return count;
     }
     public int updateQuantityOfGoods(String goodsID, Double quantity) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -197,7 +215,6 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         count = db.update(FrontOfficeDb.tbGoods.TABLE_NAME, values, selection, selectionArgs);
         return count;
     }
-
     public boolean insertTnx(String sellerID, String buyerID, String goodsID, Double quantity,
                              String unit, String desc, String tnxFOID, String sellerPrice, String buyerPrice) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -266,13 +283,13 @@ final class FrontOfficeDb {
         static final String TABLE_NAME = "customers";
         static final String COLUMN_NAME_CUST = "customer";
         static final String COLUMN_NAME_CUST_FOID = "customerFOID";
-        static final String COLUMN_NAME_BLOB = "blob";
+        static final String COLUMN_NAME_PICTURE_PATH = "customerPicPath";
     }
     static final String SQL_CUSTOMERS_CREATE_ENTRIES =
             "CREATE TABLE " + tbCustomer.TABLE_NAME + " (" +
                     tbCustomer._ID + " INTEGER PRIMARY KEY," +
                     tbCustomer.COLUMN_NAME_CUST + " TEXT," +
-                    tbCustomer.COLUMN_NAME_BLOB + " BLOB," +
+                    tbCustomer.COLUMN_NAME_PICTURE_PATH + " TEXT," +
                     tbCustomer.COLUMN_NAME_CUST_FOID + " TEXT)";
 
     static final String SQL_CUSTOMERS_DELETE_ENTRIES =
@@ -284,8 +301,8 @@ final class FrontOfficeDb {
         static final String COLUMN_NAME_GOODS_FOID = "goodsFOID";
         static final String COLUMN_NAME_QUANTITY = "quantity";
         static final String COLUMN_NAME_UNIT = "unit";
-        static final String COLUMN_NAME_AGREEMENT = "agreement";
-        static final String COLUMN_NAME_PICTURE = "picture";
+        static final String COLUMN_NAME_AGREEMENT_PATH = "agreement";
+        static final String COLUMN_NAME_PICTURE_PATH = "picture";
     }
     static final String SQL_GOODS_CREATE_ENTRIES =
             "CREATE TABLE " + tbGoods.TABLE_NAME + " (" +
@@ -294,8 +311,8 @@ final class FrontOfficeDb {
                     tbGoods.COLUMN_NAME_GOODS_FOID + " TEXT," +
                     tbGoods.COLUMN_NAME_QUANTITY + " REAL," +
                     tbGoods.COLUMN_NAME_UNIT + " TEXT," +
-                    tbGoods.COLUMN_NAME_AGREEMENT + " BLOB," +
-                    tbGoods.COLUMN_NAME_PICTURE + " BLOB)";
+                    tbGoods.COLUMN_NAME_AGREEMENT_PATH + " TEXT," +
+                    tbGoods.COLUMN_NAME_PICTURE_PATH + " TEXT)";
 
     static final String SQL_GOODS_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + tbGoods.TABLE_NAME;

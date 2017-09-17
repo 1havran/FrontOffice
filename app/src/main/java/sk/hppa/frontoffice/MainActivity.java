@@ -59,26 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        final Button btnGood = (Button) findViewById(R.id.btnGoods);
-        btnGood.setOnClickListener(new View.OnClickListener() {
 
-            public void onClick(View w) {
-                Intent intentTransactions = new Intent(MainActivity.this, DisplayView.class);
-                intentTransactions.putExtra("type", "goods");
-                startActivity(intentTransactions);
-
-            }
-        });
-
-        final Button btnCust = (Button) findViewById(R.id.btnCustomers);
-        btnCust.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View w) {
-                Intent intentTransactions = new Intent(MainActivity.this, DisplayView.class);
-                intentTransactions.putExtra("type", "customers");
-                startActivity(intentTransactions);
-            }
-        });
         final Button btnInit = (Button) findViewById(R.id.btnInitDb);
         btnInit.setOnClickListener(new View.OnClickListener() {
 
@@ -105,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     for (String good : GOODS) {
                         long t = System.currentTimeMillis();
                         Random r = new Random();
-                        mDbHelper.insertGoods(good, loginTag + Long.toString(t), (double) r.nextInt(101), "Tons");
+                        mDbHelper.insertGoods(good, loginTag + Long.toString(t), (double) r.nextInt(101), "Tons", null, null);
                     }
 
                 } catch (Exception ex) {

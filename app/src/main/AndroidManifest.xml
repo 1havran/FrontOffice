@@ -20,6 +20,15 @@
         <activity android:name=".DisplayView" />
         <activity android:name=".AddGoods" />
         <activity android:name=".AddCustomer"></activity>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="sk.hppa.frontoffice.android.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
     </application>
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />

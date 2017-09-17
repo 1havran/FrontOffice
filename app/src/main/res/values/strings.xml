@@ -6,14 +6,15 @@
     <string name="Goods">Goods</string>
     <string name="btnConfigure">Settings</string>
     <string name="lblTransactions">TNX</string>
-    <string name="lblCustomers">Customers</string>
+    <string name="lblCustomers">Customers Inventory</string>
     <string name="lblAddCust">Add Customer</string>
     <string name="lblAddGoods">Add Goods</string>
     <string name="lblGoods">Choose Goods</string>
+    <string name="lblGoodsInventory">Goods Inventory</string>
     <string name="lblInit">Init DB</string>
     <string name="lblQuantity">Quantity</string>
-
     <string name="lblUnit">Tons</string>
+    <string name="lblAddUnit">Add QUantity</string>
     <string name="clearDB">Clear DB</string>
     <string name="lblTessOcr">Get TessOCR</string>
     <string name="lblGoOcr">Get GooOCR</string>
@@ -22,4 +23,10 @@
     <string name="lblEmail">Resend Email</string>
     <string name="lblTnx">Set Transaction</string>
     <string name="lblDescription">Note</string>
+    <string name="lblAgreement">Deal Contract</string>
+    <string name="lblGoodsPicture">Goods Picture</string>
+    <string name="lblNewGoods">New Goods</string>
+    <string name="lblUpdateGoods">Update Goods</string>
+    <string name="lblUpdateCustomer">Update Customer</string>
+    <string name="emailRecipient">test@example.com</string>
 </resources>

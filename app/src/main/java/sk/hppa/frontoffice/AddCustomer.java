@@ -2,12 +2,19 @@ package sk.hppa.frontoffice;
 
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,14 +30,18 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class AddCustomer extends AppCompatActivity {
     final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(AddCustomer.this);
 
-
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    TessOCR mTessOCR = new TessOCR(AddCustomer.this, "eng");
+    String pathCustomerPic;
+    static final int PIC_GET_FROM_GALLERY  = 3;
+    static final int PIC_GET_FROM_CAMERA = 4;
+    final String custFOID = "";
+    String recipient = "recipient@example.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +51,21 @@ public class AddCustomer extends AppCompatActivity {
 
         final Spinner spinnerCustomer = (Spinner) findViewById(R.id.spinnerCustomers);
         final Button btnSend = (Button) findViewById(R.id.btnAddCustomer);
-        final Button btnOcr = (Button) findViewById(R.id.btnOcr);
+        final Button btnEmail = (Button) findViewById(R.id.btnEmail);
         final Button btnGoOcr = (Button) findViewById(R.id.btnGooOcr);
         final EditText eCustomer = (EditText) findViewById(R.id.edtCustomer);
+        final ImageView ivCustomerPhoto = (ImageView) findViewById(R.id.ivCustomerPic);
 
         ArrayAdapter<String> adapterCustomer = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line, mDbHelper.getCustomers());
         spinnerCustomer.setAdapter(adapterCustomer);
         spinnerCustomer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String CustomerLabel = spinnerCustomer.getSelectedItem().toString().split(" ")[1];
-                eCustomer.setText(CustomerLabel);
+                ArrayList al = mDbHelper.getCustomerIDsByName(spinnerCustomer.getSelectedItem().toString());
+                al = mDbHelper.getCustomerByID(al.get(0).toString());
+                eCustomer.setText(spinnerCustomer.getSelectedItem().toString());
+                ivCustomerPhoto.setImageBitmap(BitmapFactory.decodeFile(al.get(3).toString()));
+                btnSend.setText(R.string.lblUpdateCustomer);
             }
 
             @Override
@@ -68,12 +83,16 @@ public class AddCustomer extends AppCompatActivity {
 
                     ArrayList al = mDbHelper.getCustomerIDsByName(mCustomer);
 
+                    String bodyText = "Customer: " + mCustomer + "\n";
+
                     if (al.size() > 0) {
-                        String custID = spinnerCustomer.getSelectedItem().toString().split(" ")[0];
-                        mDbHelper.updateCustomerByID(custID, mCustomer, null);
+                        //String custID = spinnerCustomer.getSelectedItem().toString().split(" ")[0];
+                        //mDbHelper.updateCustomerByID(custID, mCustomer, null);
                     } else {
                         String custFOID = "DD" + System.currentTimeMillis();
-                        mDbHelper.insertCustomer(mCustomer, custFOID, null);
+                        mDbHelper.insertCustomer(mCustomer, custFOID, pathCustomerPic);
+                        sendEmail(recipient, "New customer: " + custFOID, bodyText, pathCustomerPic, null);
+
                     }
                     Toast.makeText(AddCustomer.this, "Done", Toast.LENGTH_SHORT).show();
                 } catch (Exception ex) {
@@ -82,27 +101,36 @@ public class AddCustomer extends AppCompatActivity {
                 finish();
             }
         });
+        btnEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList al = mDbHelper.getCustomerIDsByName(eCustomer.getText().toString());
+                String bodyText = "Customer: " + eCustomer.getText().toString() + "\n";
 
-        final ImageView ivCustomerPhoto = (ImageView) findViewById(R.id.ivCustomerPic);
+                if (al.size() > 0) {
+                    al = mDbHelper.getCustomerByID(al.get(0).toString());
+                    sendEmail(recipient, "Customer Update: " + al.get(1).toString(), bodyText, al.get(3).toString(), null);
+                } else {
+                    sendEmail(recipient, "New Customer: " + custFOID, bodyText, pathCustomerPic, null);
+                }
+
+            }
+
+        });
+
         ivCustomerPhoto.setOnClickListener(new View.OnClickListener() {
             public void onClick(View w) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                }
+                getImageFromGallery(PIC_GET_FROM_GALLERY);
+            }
+        });
+        ivCustomerPhoto.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                pathCustomerPic = getImageFromCamera(PIC_GET_FROM_CAMERA);
+                return false;
             }
         });
 
-        btnOcr.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View w) {
-                try {
-                    Bitmap bitmap = ((BitmapDrawable)ivCustomerPhoto.getDrawable()).getBitmap();
-                    doOCR(bitmap);
-                } catch (Exception ex) {
-                    Toast.makeText(AddCustomer.this, (CharSequence) ex, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
         btnGoOcr.setOnClickListener(new View.OnClickListener() {
             public void onClick(View w) {
@@ -122,30 +150,111 @@ public class AddCustomer extends AppCompatActivity {
                 }
             }
         });
+        eCustomer.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                ivCustomerPhoto.setImageBitmap(null);
+                btnSend.setText(R.string.lblAddCust);
+            }
+        });
+        eCustomer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eCustomer.setText("");
+            }
+        });
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+        ImageView ivCustomerPhoto = (ImageView) findViewById(R.id.ivCustomerPic);
 
-            Bitmap newImage = imageBitmap.copy(Bitmap.Config.ARGB_8888,true);
+        if (requestCode == PIC_GET_FROM_GALLERY && resultCode == RESULT_OK) {
+            Uri selectedImage = data.getData();
 
-            ImageView ivCustomerPhoto = (ImageView) findViewById(R.id.ivCustomerPic);
-            ivCustomerPhoto.setImageBitmap(newImage);
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            pathCustomerPic = cursor.getString(columnIndex);
+            cursor.close();
+
+            ivCustomerPhoto.setImageBitmap(BitmapFactory.decodeFile(pathCustomerPic));
+        }
+        if (requestCode == PIC_GET_FROM_CAMERA && resultCode == RESULT_OK) {
+            ivCustomerPhoto.setImageBitmap(BitmapFactory.decodeFile(pathCustomerPic));
         }
     }
 
 
-    private void doOCR (final Bitmap bitmap) {
-        final EditText eCustomer = (EditText) findViewById(R.id.edtCustomer);
-        String srcText = mTessOCR.getOCRResult(bitmap);
-        if (srcText != null && !srcText.equals("")) {
-            eCustomer.setText(srcText);
-        }
-        Toast.makeText(AddCustomer.this, srcText, Toast.LENGTH_LONG).show();
 
+    public void getImageFromGallery(int IntentCode) {
+        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, IntentCode);
     }
- }
+
+    public String getImageFromCamera(int IntentCode) {
+        String result = "";
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+            }
+            if (photoFile != null) {
+                result = photoFile.getAbsolutePath();
+                Uri photoURI = FileProvider.getUriForFile(AddCustomer.this, "sk.hppa.frontoffice.android.fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, IntentCode);
+            }
+        }
+        return result;
+    }
+
+    private File createImageFile() throws IOException {
+        String imageFileName = "JPEG_" + custFOID + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        return image;
+    }
+
+    public void sendEmail(String recipient, String subject, String bodyText, String pathPic1, String pathPic2 ) {
+        try {
+            final Intent i = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            i.setType("message/rfc822");
+            i.putExtra(Intent.EXTRA_EMAIL, new String[]{recipient});
+            i.putExtra(Intent.EXTRA_SUBJECT, subject);
+            i.putExtra(Intent.EXTRA_TEXT, bodyText);
+            ArrayList<Uri> uris = new ArrayList<Uri>();
+            if (pathPic1 != null) {
+                File f = new File(pathPic1);
+                Uri u = Uri.fromFile(f);
+                uris.add(u);
+            }
+            if (pathPic2 != null) {
+                    uris.add(Uri.fromFile(new File(pathPic2)));
+            }
+            i.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+            startActivity(Intent.createChooser(i, "Send mail..."));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(AddCustomer.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+}

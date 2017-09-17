@@ -1,18 +1,15 @@
 package sk.hppa.frontoffice;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -31,7 +28,7 @@ public class BuySell extends AppCompatActivity {
         final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(BuySell.this);
         final Button mBtnSend = (Button) findViewById(R.id.btnSend);
         final Button mBtnEmail = (Button) findViewById(R.id.btnEmail);
-        final EditText mQuantity1 = (EditText) findViewById(R.id.edtQuantity1);
+        final EditText mQuantity1 = (EditText) findViewById(R.id.edtQuantity);
         final EditText mQuantity2 = (EditText) findViewById(R.id.edtQuantity2);
         final EditText mQuantity3 = (EditText) findViewById(R.id.edtQuantity3);
         final EditText mSellerPrice1 = (EditText) findViewById(R.id.edtSellerPrice1);
@@ -106,7 +103,8 @@ public class BuySell extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (! lastFOID.equals("") && ! lastEmail.equals("")) {
-                    sendEmail(recipient, "New order: " + lastFOID, lastEmail);
+
+                    sendEmail(recipient, "New order: " + lastFOID, lastEmail, null, null);
                 } else {
                     Toast.makeText(BuySell.this, "No information about last transaction.", Toast.LENGTH_SHORT).show();
                 }
@@ -152,7 +150,8 @@ public class BuySell extends AppCompatActivity {
                             bodyText = bodyText + "\n" + getGoodsTemplateMessage(mSpinnerGoods3, mQuantity3, mSellerPrice3, mBuyerPrice3);
                         }
                         lastEmail = bodyText;
-                        sendEmail(recipient, "New order: " + tnxFOID, bodyText);
+                        Toast.makeText(BuySell.this, "Done", Toast.LENGTH_SHORT).show();
+                        sendEmail(recipient, "New order: " + tnxFOID, bodyText, null, null);
                     } else {
                         Toast.makeText(BuySell.this, "Seller and Buyer price is not set for any of the goods.\nTransaction is not sent!", Toast.LENGTH_SHORT).show();
                     }
@@ -181,16 +180,23 @@ public class BuySell extends AppCompatActivity {
         return true;
     }
 
-    private void sendEmail(String recipient, String subject, String bodyText ) {
+    public void sendEmail(String recipient, String subject, String bodyText, String pathPic1, String pathPic2 ) {
         try {
             final Intent i = new Intent(Intent.ACTION_SEND);
             i.setType("message/rfc822");
             i.putExtra(Intent.EXTRA_EMAIL, new String[]{recipient});
             i.putExtra(Intent.EXTRA_SUBJECT, subject);
             i.putExtra(Intent.EXTRA_TEXT, bodyText);
+            if (pathPic1 != null) {
+                i.putExtra(Intent.EXTRA_STREAM, pathPic1);
+            }
+            if (pathPic2 != null) {
+                i.putExtra(Intent.EXTRA_STREAM, pathPic2);
+            }
             startActivity(Intent.createChooser(i, "Send mail..."));
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BuySell.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
         }
     }
+
 }
