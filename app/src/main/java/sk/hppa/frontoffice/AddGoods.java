@@ -1,19 +1,16 @@
 package sk.hppa.frontoffice;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,27 +18,31 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class AddGoods extends AppCompatActivity {
-    final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(AddGoods.this);
+public class AddGoods extends Activity {
+
+
     static final int DEAL_GET_FROM_GALLERY = 1;
     static final int DEAL_GET_FROM_CAMERA  = 2;
     static final int PIC_GET_FROM_GALLERY  = 3;
     static final int PIC_GET_FROM_CAMERA = 4;
-    static final String emailRecipient = "aaa@example.com";
 
-    String pathDealPicture = null, pathDealAgreement = null, goodFOID = "DD", bodyText;
+
+    String emailRecipient = "", goodsFOID = "", pathDealPicture = null, pathDealAgreement = null, bodyText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_goods);
+
+        final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(AddGoods.this);
+        emailRecipient = mDbHelper.getMetadataByKey("emailRecipient");
+        goodsFOID = mDbHelper.getMetadataByKey("FOID");
 
         final EditText eGoods = (EditText) findViewById(R.id.edtGoodsName);
         final EditText eQuantity = (EditText) findViewById(R.id.edtQuantity);
@@ -118,9 +119,9 @@ public class AddGoods extends AppCompatActivity {
                         mDbHelper.updateGoods(al.get(0).toString(), al.get(6).toString(), d, "Tons", pathDealAgreement, pathDealPicture);
                         sendEmail(emailRecipient, "Goods update: " + al.get(6).toString(), bodyText, pathDealAgreement, pathDealPicture);
                     } else {
-                        goodFOID = "DD" + System.currentTimeMillis();
-                        mDbHelper.insertGoods(mGoodsText, goodFOID, d, "Tons", pathDealAgreement, pathDealPicture);
-                        sendEmail(emailRecipient, "New Goods: " + goodFOID, bodyText, pathDealAgreement, pathDealPicture);
+                        String mFOID = goodsFOID + System.currentTimeMillis();
+                        mDbHelper.insertGoods(mGoodsText, mFOID, d, "Tons", pathDealAgreement, pathDealPicture);
+                        sendEmail(emailRecipient, "New Goods: " + mFOID, bodyText, pathDealAgreement, pathDealPicture);
                     }
                     Toast.makeText(AddGoods.this, "Done", Toast.LENGTH_SHORT).show();
                 } catch (Exception ex) {
@@ -140,7 +141,7 @@ public class AddGoods extends AppCompatActivity {
                     al = mDbHelper.getGoodsByID(al.get(0).toString());
                     sendEmail(emailRecipient, "Goods update: " + al.get(6).toString(), bodyText, pathDealAgreement, pathDealPicture);
                 } else {
-                    sendEmail(emailRecipient, "New Goods: " + goodFOID, bodyText, pathDealAgreement, pathDealPicture);
+                    sendEmail(emailRecipient, "New Goods: " + goodsFOID, bodyText, pathDealAgreement, pathDealPicture);
                 }
 
             }
@@ -239,7 +240,7 @@ public class AddGoods extends AppCompatActivity {
     }
 
     private File createImageFile() throws IOException {
-        String imageFileName = "JPEG_" + goodFOID + "_";
+        String imageFileName = "JPEG_" + goodsFOID + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */

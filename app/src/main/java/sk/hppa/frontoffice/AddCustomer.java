@@ -1,6 +1,7 @@
 package sk.hppa.frontoffice;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -11,7 +12,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
@@ -34,20 +33,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class AddCustomer extends AppCompatActivity {
-    final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(AddCustomer.this);
+public class AddCustomer extends Activity {
 
-    String pathCustomerPic;
+
+    String pathCustomerPic = null, custFOID = "", emailRecipient = "";;
     static final int PIC_GET_FROM_GALLERY  = 3;
     static final int PIC_GET_FROM_CAMERA = 4;
-    final String custFOID = "";
-    String recipient = "recipient@example.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_customer);
 
+        final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(AddCustomer.this);
+        custFOID = mDbHelper.getMetadataByKey("FOID");
+        emailRecipient = mDbHelper.getMetadataByKey("emailRecipient");
 
         final Spinner spinnerCustomer = (Spinner) findViewById(R.id.spinnerCustomers);
         final Button btnSend = (Button) findViewById(R.id.btnAddCustomer);
@@ -89,9 +89,9 @@ public class AddCustomer extends AppCompatActivity {
                         //String custID = spinnerCustomer.getSelectedItem().toString().split(" ")[0];
                         //mDbHelper.updateCustomerByID(custID, mCustomer, null);
                     } else {
-                        String custFOID = "DD" + System.currentTimeMillis();
-                        mDbHelper.insertCustomer(mCustomer, custFOID, pathCustomerPic);
-                        sendEmail(recipient, "New customer: " + custFOID, bodyText, pathCustomerPic, null);
+                        String mFOID = custFOID + System.currentTimeMillis();
+                        mDbHelper.insertCustomer(mCustomer, mFOID, pathCustomerPic);
+                        sendEmail(emailRecipient, "New customer: " + mFOID, bodyText, pathCustomerPic, null);
 
                     }
                     Toast.makeText(AddCustomer.this, "Done", Toast.LENGTH_SHORT).show();
@@ -109,9 +109,9 @@ public class AddCustomer extends AppCompatActivity {
 
                 if (al.size() > 0) {
                     al = mDbHelper.getCustomerByID(al.get(0).toString());
-                    sendEmail(recipient, "Customer Update: " + al.get(1).toString(), bodyText, al.get(3).toString(), null);
+                    sendEmail(emailRecipient, "Customer Update: " + al.get(1).toString(), bodyText, al.get(3).toString(), null);
                 } else {
-                    sendEmail(recipient, "New Customer: " + custFOID, bodyText, pathCustomerPic, null);
+                    sendEmail(emailRecipient, "New Customer: " + custFOID, bodyText, pathCustomerPic, null);
                 }
 
             }

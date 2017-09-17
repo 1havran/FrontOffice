@@ -70,7 +70,7 @@
         android:id="@+id/btnGoodsEmail"
         android:layout_width="101dp"
         android:layout_height="89dp"
-        android:layout_marginBottom="19dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:text="@string/lblEmail"
@@ -85,11 +85,11 @@
         android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintHorizontal_bias="1.0"
+        android:background="@drawable/common_full_open_on_phone"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toRightOf="@+id/ivGoodsDeal"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:srcCompat="@drawable/common_full_open_on_phone" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <Button
         android:id="@+id/btnAddGoods"
@@ -148,11 +148,11 @@
         android:id="@+id/ivGoodsDeal"
         android:layout_width="170dp"
         android:layout_height="238dp"
-        app:srcCompat="@drawable/common_full_open_on_phone"
         android:layout_marginLeft="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/common_full_open_on_phone"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
 </android.support.constraint.ConstraintLayout>

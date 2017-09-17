@@ -11,7 +11,7 @@
     <string name="lblAddGoods">Add Goods</string>
     <string name="lblGoods">Choose Goods</string>
     <string name="lblGoodsInventory">Goods Inventory</string>
-    <string name="lblInit">Init DB</string>
+    <string name="lblInit">Configuration</string>
     <string name="lblQuantity">Quantity</string>
     <string name="lblUnit">Tons</string>
     <string name="lblAddUnit">Add QUantity</string>
@@ -29,4 +29,8 @@
     <string name="lblUpdateGoods">Update Goods</string>
     <string name="lblUpdateCustomer">Update Customer</string>
     <string name="emailRecipient">test@example.com</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="lblRecipientEmail">Add recipient email</string>
+    <string name="lblFOID">Front Office ID</string>
+    <string name="lblSave">Save</string>
 </resources>

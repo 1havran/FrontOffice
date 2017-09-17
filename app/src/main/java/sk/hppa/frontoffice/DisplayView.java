@@ -1,7 +1,7 @@
 package sk.hppa.frontoffice;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class DisplayView extends AppCompatActivity {
+public class DisplayView extends Activity {
     final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(DisplayView.this);
 
     @Override

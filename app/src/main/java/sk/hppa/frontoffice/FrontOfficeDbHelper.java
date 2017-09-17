@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 
 public class FrontOfficeDbHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 10;
     private static final String DATABASE_NAME = "FrontOffice.db";
 
     public FrontOfficeDbHelper(Context context) {
@@ -22,14 +22,16 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         db.execSQL(FrontOfficeDb.SQL_CUSTOMERS_CREATE_ENTRIES);
         db.execSQL(FrontOfficeDb.SQL_GOODS_CREATE_ENTRIES);
         db.execSQL(FrontOfficeDb.SQL_TNX_CREATE_ENTRIES);
-
+        db.execSQL(FrontOfficeDb.SQL_METADATA_CREATE_ENTRIES);
+        db.execSQL(FrontOfficeDb.SQL_METADATA_INSERT_ENTRIES);
+        //insertMetadataByKey("FOID", "DD");
+        //insertMetadataByKey("emailRecipient", "aaaa@example.com");
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
         db.execSQL(FrontOfficeDb.SQL_CUSTOMERS_DELETE_ENTRIES);
         db.execSQL(FrontOfficeDb.SQL_GOODS_DELETE_ENTRIES);
         db.execSQL(FrontOfficeDb.SQL_TNX_DELETE_ENTRIES);
+        db.execSQL(FrontOfficeDb.SQL_METADATA_DELETE_ENTRIES);
         onCreate(db);
     }
     public void cleanDatabase() {
@@ -273,11 +275,62 @@ public class FrontOfficeDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return result;
     }
+    public String getMetadataByKey(String configurationKey) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String sql = "SELECT " + FrontOfficeDb.tbMetadata.COLUMN_NAME_VALUE
+                + " FROM " + FrontOfficeDb.tbMetadata.TABLE_NAME
+                + " WHERE " + FrontOfficeDb.tbMetadata.COLUMN_NAME_KEY
+                + " = \"" + configurationKey + "\"";
+        Cursor cursor = db.rawQuery(sql, null);
+        String result = "";
+        while (cursor.moveToNext()) {
+            result = cursor.getString(cursor.getColumnIndexOrThrow(FrontOfficeDb.tbMetadata.COLUMN_NAME_VALUE));
+        }
+        cursor.close();
+        return result;
+    }
+    public int updateMetadataByKey(String key, String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = FrontOfficeDb.tbMetadata.COLUMN_NAME_KEY + " = ?";
+        String[] selectionArgs = { key };
+        ContentValues values = new ContentValues();
+        values.put(FrontOfficeDb.tbMetadata.COLUMN_NAME_VALUE, value);
+        int count;
+        count = db.update(FrontOfficeDb.tbMetadata.TABLE_NAME, values, selection, selectionArgs);
+        return count;
+    }
+    public Boolean insertMetadataByKey(String key, String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(FrontOfficeDb.tbMetadata.COLUMN_NAME_KEY, key);
+        values.put(FrontOfficeDb.tbMetadata.COLUMN_NAME_VALUE, value);
+        db.insert(FrontOfficeDb.tbMetadata.TABLE_NAME, null, values);
+        return true;
+    }
 }
 
 final class FrontOfficeDb {
 
     private FrontOfficeDb() {}
+
+    static class tbMetadata implements BaseColumns {
+        static final String TABLE_NAME = "metadata";
+        static final String COLUMN_NAME_KEY = "confKey";
+        static final String COLUMN_NAME_VALUE = "confValue";
+    }
+    static final String SQL_METADATA_CREATE_ENTRIES =
+            "CREATE TABLE " + tbMetadata.TABLE_NAME + " (" +
+                    tbMetadata._ID + " INTEGER PRIMARY KEY," +
+                    tbMetadata.COLUMN_NAME_KEY + " TEXT," +
+                    tbMetadata.COLUMN_NAME_VALUE + " TEXT)";
+
+    static final String SQL_METADATA_INSERT_ENTRIES =
+            "INSERT INTO " + tbMetadata.TABLE_NAME +
+                    " VALUES (1, \"emailRecipient\", \"aaa@example.com\"), " +
+                    "(2, \"FOID\", \"DD\")";
+
+    static final String SQL_METADATA_DELETE_ENTRIES =
+            "DROP TABLE IF EXISTS " + tbMetadata.TABLE_NAME;
 
     static class tbCustomer implements BaseColumns {
         static final String TABLE_NAME = "customers";

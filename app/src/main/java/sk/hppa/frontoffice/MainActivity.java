@@ -1,16 +1,21 @@
 package sk.hppa.frontoffice;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
@@ -22,9 +27,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(MainActivity.this);
         final String loginTag = "DD";
+        final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 1;
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
+        }
 
         final Button myBtnBuySell = (Button) findViewById(R.id.btnBuySell);
         myBtnBuySell.setOnClickListener(new View.OnClickListener() {
@@ -64,8 +77,13 @@ public class MainActivity extends AppCompatActivity {
         btnInit.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View w) {
+                Intent i = new Intent(MainActivity.this, Configuration.class);
+                startActivity(i);
+                /**
+            }
                 try {
 
+                    /**
                     mDbHelper.cleanDatabase();
 
                     final String[] CUSTOMERS = new String[] {
@@ -92,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception ex) {
                     Toast.makeText(MainActivity.this, (CharSequence) ex, Toast.LENGTH_SHORT).show();
                 }
+                     **/
             }
         });
 

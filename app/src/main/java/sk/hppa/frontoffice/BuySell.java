@@ -1,9 +1,8 @@
 package sk.hppa.frontoffice;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,11 +13,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class BuySell extends AppCompatActivity {
+public class BuySell extends Activity {
 
     String lastFOID = "";
     String lastEmail = "";
-    String recipient = "recipient@example.com";
+    String emailRecipient = "", tnxFOID="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +25,9 @@ public class BuySell extends AppCompatActivity {
         setContentView(R.layout.activity_buy_sell);
 
         final FrontOfficeDbHelper mDbHelper = new FrontOfficeDbHelper(BuySell.this);
+        emailRecipient = mDbHelper.getMetadataByKey("emailRecipient");
+        tnxFOID = mDbHelper.getMetadataByKey("FOID");
+
         final Button mBtnSend = (Button) findViewById(R.id.btnSend);
         final Button mBtnEmail = (Button) findViewById(R.id.btnEmail);
         final EditText mQuantity1 = (EditText) findViewById(R.id.edtQuantity);
@@ -104,7 +106,7 @@ public class BuySell extends AppCompatActivity {
             public void onClick(View v) {
                 if (! lastFOID.equals("") && ! lastEmail.equals("")) {
 
-                    sendEmail(recipient, "New order: " + lastFOID, lastEmail, null, null);
+                    sendEmail(emailRecipient, "New order: " + lastFOID, lastEmail, null, null);
                 } else {
                     Toast.makeText(BuySell.this, "No information about last transaction.", Toast.LENGTH_SHORT).show();
                 }
@@ -114,7 +116,7 @@ public class BuySell extends AppCompatActivity {
         mBtnSend.setOnClickListener(new View.OnClickListener() {
             public void onClick(View w) {
 
-                    String sellerID, buyerID, description, tnxFOID, bodyText;
+                    String sellerID, buyerID, description, bodyText;
                     Boolean isDeal1, isDeal2, isDeal3;
                     int subTnx = 0;
 
@@ -126,32 +128,31 @@ public class BuySell extends AppCompatActivity {
                         sellerID = mDbHelper.getCustomerIDsByName(mSpinnerSeller.getSelectedItem().toString()).get(0).toString();
                         buyerID = mDbHelper.getCustomerIDsByName(mSpinnerBuyer.getSelectedItem().toString()).get(0).toString();
                         description = mDescription.getText().toString();
-                        tnxFOID = "DD" + System.currentTimeMillis();
-                        lastFOID = tnxFOID;
+                        lastFOID = tnxFOID + System.currentTimeMillis();
 
-                        bodyText = "Front office Transaction ID: " + tnxFOID.toString() + "\n\n"
+                        bodyText = "Front office Transaction ID: " + lastFOID + "\n\n"
                                 + "Seller: " + mSpinnerSeller.getSelectedItem().toString() + "\n"
                                 + "Buyer: " + mSpinnerBuyer.getSelectedItem().toString() + "\n"
                                 + "Description: " + mDescription.getText() + "\n";
 
                         if (isDeal1) {
                             subTnx += 1;
-                            setGoodsDeal(mDbHelper, mSpinnerGoods1, mQuantity1, mSellerPrice1, mBuyerPrice1, sellerID, buyerID, tnxFOID + "_" + subTnx, description);
+                            setGoodsDeal(mDbHelper, mSpinnerGoods1, mQuantity1, mSellerPrice1, mBuyerPrice1, sellerID, buyerID, lastFOID + "_" + subTnx, description);
                             bodyText = bodyText + "\n" + getGoodsTemplateMessage(mSpinnerGoods1, mQuantity1, mSellerPrice1, mBuyerPrice1);
                         }
                         if (isDeal2) {
                             subTnx += 1;
-                            setGoodsDeal(mDbHelper, mSpinnerGoods2, mQuantity2, mSellerPrice2, mBuyerPrice2, sellerID, buyerID, tnxFOID + "_" + subTnx, description);
+                            setGoodsDeal(mDbHelper, mSpinnerGoods2, mQuantity2, mSellerPrice2, mBuyerPrice2, sellerID, buyerID, lastFOID + "_" + subTnx, description);
                             bodyText = bodyText + "\n" + getGoodsTemplateMessage(mSpinnerGoods2, mQuantity2, mSellerPrice2, mBuyerPrice2);
                         }
                         if (isDeal3) {
                             subTnx += 1;
-                            setGoodsDeal(mDbHelper, mSpinnerGoods3, mQuantity3, mSellerPrice3, mBuyerPrice3, sellerID, buyerID, tnxFOID + "_" + subTnx, description);
+                            setGoodsDeal(mDbHelper, mSpinnerGoods3, mQuantity3, mSellerPrice3, mBuyerPrice3, sellerID, buyerID, lastFOID + "_" + subTnx, description);
                             bodyText = bodyText + "\n" + getGoodsTemplateMessage(mSpinnerGoods3, mQuantity3, mSellerPrice3, mBuyerPrice3);
                         }
                         lastEmail = bodyText;
                         Toast.makeText(BuySell.this, "Done", Toast.LENGTH_SHORT).show();
-                        sendEmail(recipient, "New order: " + tnxFOID, bodyText, null, null);
+                        sendEmail(emailRecipient, "New order: " + lastFOID, bodyText, null, null);
                     } else {
                         Toast.makeText(BuySell.this, "Seller and Buyer price is not set for any of the goods.\nTransaction is not sent!", Toast.LENGTH_SHORT).show();
                     }
